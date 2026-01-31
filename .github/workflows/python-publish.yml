@@ -1,0 +1,141 @@
+# This workflow will upload a Python Package to PyPI when a release is created
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-python#publishing-to-package-registries
+
+# This workflow uses actions that are not certified by GitHub.
+# They are provided by a third-party and are governed by
+# separate terms of service, privacy policy, and support
+# documentation.
+
+name: Upload Python Package
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: read
+
+jobs:
+  release-build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-pyth          python-version: "3.x"
+
+      - name: Build release distributions
+        run: |
+          # NOTE: put your own distribution build steps here.
+          python -m pip install build
+          python -m build
+
+      - name: Upload distributions
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-dists
+          path: dist/
+
+  pypi-publish:
+    runs-on: ubuntu-latest
+    needs:
+      - release-build
+    permissions:
+      # IMPORTANT: this permission is mandatory for trusted publishing
+      id-token: write
+
+    # Dedicated environments with protections for publishing are strongly recommended.
+    # For more information, see: https://docs.github.com/en/actions/deployment/targeting-different-environments/using-environments-for-deployment#deployment-protection-rules
+    environment:
+      name: pypi
+      # OPTIONAL: uncomment and update to include your PyPI project URL in the deployment status:
+      # url: https://pypi.org/p/YOURPROJECT
+      #
+      # ALTERNATIVE: if your GitHub Release name is the PyPI project version string
+      # ALTERNATIVE: exactly, uncomment the following line instead:
+      # url: https://pypi.org/project/YOURPROJECT/${{ github.event.release.name }}
+
+    steps:
+      - name: Retrieve release distributions
+        uses: actions/download-artifact@v4
+        with:
+          name: release-dists
+          path: dist/
+
+      - name: Publish release distributions to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          packages-dir: dist/
+import matplotlib.pyplot as plt
+
+print("Hello Mark")
+
+# Basic info
+age = int(input("What is your age? "))
+weight = float(input("What is your weight? "))
+
+if weight > 230:
+    print("Ok, let's plan.")
+else:
+    print("Ok, implement new plan.")
+
+print("\nBench Press Tracker")
+bench_weight = float(input("Weight used in bench press (lbs)? "))
+bench_reps = int(input("Reps per set? "))
+bench_sets = int(input("Number of sets? "))
+bench_duration = float(input("Total bench duration (minutes)? "))
+
+# Estimate calories burned for bench
+# Rough approximation: 6 cal/min for heavy lifting
+bench_calories = bench_duration * 6
+
+print(f"Estimated calories burned from bench press: {bench_calories:.1f} calories")
+
+print("\nSit-up Tracker")
+situps = int(input("How many sit-ups did you do today? "))
+calories_situps = (situps / 110) * 100
+print(f"You did {situps} sit-ups today.")
+print(f"Estimated calories burned from sit-ups: {calories_situps:.1f} calories")
+
+if calories_situps >= 100:
+    print("Great job! You hit your 100 calorie goal 💪")
+else:
+    print("Keep going — you're getting closer to 100 calories!")
+
+print("\nRunning Tracker")
+run_distance = float(input("How far did you run today? (miles) "))
+run_time = float(input("How long did you run? (minutes) "))
+
+# Input calories eaten
+calories_eaten = float(input("How many calories did you eat today? "))
+
+# Constants
+CAL_PER_LB = 3500
+RUN_CAL_PER_MILE_PER_LB = 0.63
+
+# Calculate running calories
+run_calories = run_distance * weight * RUN_CAL_PER_MILE_PER_LB
+
+# Total calories burned (bench + sit-ups + running)
+total_burned = bench_calories + calories_situps + run_calories
+
+# Net calories and estimated weight change
+calorie_balance = total_burned - calories_eaten
+weight_change = calorie_balance / CAL_PER_LB
+
+# Output
+print(f"\nCalories burned from bench press: {bench_calories:.1f}")
+print(f"Calories burned from sit-ups: {calories_situps:.1f}")
+print(f"Calories burned from running: {run_calories:.1f}")
+print(f"Total calories burned: {total_burned:.1f}")
+print(f"Calories eaten: {calories_eaten:.1f}")
+print(f"Net calories (burned - eaten): {calorie_balance:.1f}")
+
+# Graph
+activities = ['Bench Press', 'Sit-ups', 'Running']
+calories = [bench_calories, calories_situps, run_calories]
+
+plt.bar(activities, calories, color=['red', 'blue', 'green'])
+plt.title('Calories Burned by Activity')
+plt.ylabel('Calories')
+plt.show()
